@@ -2,6 +2,7 @@
 
 import { RainbowProvider } from "../providers/RainbowProvider";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import TransferForm from "../components/TransferForm";
 
 export default function Home() {
   return (
@@ -38,10 +39,8 @@ export default function Home() {
           </div>
         </header>
 
-        <section className="flex-1 flex items-center justify-center">
-          <h2 className="text-3xl font-semibold text-gray-800">
-            Welcome to XBridge!
-          </h2>
+        <section className="flex-1 flex items-center justify-center w-full px-4">
+          <TransferForm />
         </section>
       </main>
     </RainbowProvider>
