@@ -5,8 +5,8 @@ import ConnectWalletButton from "@/src/components/avail/connect-button";
 
 export default function Page() {
   const btn =
-    "px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 " +
-    "disabled:opacity-50 disabled:cursor-not-allowed";
+    "px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 cursor-pointer" +
+    "disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer";
 
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center">

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import type {
-  TransferParams,
-  TransferResult,
+  BridgeParams,
+  BridgeResult,
   SimulationResult,
 } from "@avail-project/nexus-core";
 import { sdk, initializeWithProvider } from "../lib/nexus";
@@ -27,6 +27,9 @@ export default function TransferForm() {
   const [token, setToken] = useState("");
   const [amount, setAmount] = useState("");
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+
   const handleTransfer = async () => {
     if (!isConnected) {
       if (openConnectModal) {
@@ -37,30 +40,59 @@ export default function TransferForm() {
       return;
     }
 
-    if (!sdk.isInitialized()) {
-      const provider = await connector?.getProvider();
-      if (!provider) throw new Error("No provider found");
-      await initializeWithProvider(provider);
+    setIsLoading(true);
+    setStatus("idle");
+
+    try {
+      if (!sdk.isInitialized()) {
+        const provider = await connector?.getProvider();
+        if (!provider) throw new Error("No provider found");
+        await initializeWithProvider(provider);
+      }
+
+      const result: BridgeResult = await sdk.bridge({
+        token,
+        amount,
+        chainId: toNetwork,
+        sourceChains: fromNetworks,
+      } as BridgeParams);
+
+      const simulation: SimulationResult = await sdk.simulateBridge({
+        token,
+        amount,
+        chainId: toNetwork,
+        sourceChains: fromNetworks,
+      } as BridgeParams);
+
+      console.log("Fees:", simulation.intent.fees);
+      console.log("Bridge result:", result);
+
+      setStatus("success");
+    } catch (error) {
+      console.error("Transaction failed:", error);
+      setStatus("error");
+    } finally {
+      setIsLoading(false);
+      setTimeout(() => setStatus("idle"), 3000);
     }
-    console.log("connector:", connector);
-    const result: TransferResult = await sdk.transfer({
-      token: token,
-      amount: amount,
-      chainId: toNetwork,
-      recipient: "0xe3926a167486568213f73752cbfa47053ee74096",
-      sourceChains: fromNetworks,
-    } as TransferParams);
+  };
 
-    const simulation: SimulationResult = await sdk.simulateTransfer({
-      token: token,
-      amount: amount,
-      chainId: toNetwork,
-      recipient: "0xe3926a167486568213f73752cbfa47053ee74096",
-      sourceChains: fromNetworks,
-    } as TransferParams);
+  const getButtonStyle = () => {
+    switch (status) {
+      case "success":
+        return "bg-green-500 hover:bg-green-600";
+      case "error":
+        return "bg-red-500 hover:bg-red-600";
+      default:
+        return "bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600";
+    }
+  };
 
-    console.log("Fees:", simulation.intent.fees);
-    console.log("result:", result.success);
+  const getButtonText = () => {
+    if (isLoading) return "Processing...";
+    if (status === "success") return "Transaction Successful";
+    if (status === "error") return "Transaction Failed";
+    return "Proceed";
   };
 
   return (
@@ -110,10 +142,37 @@ export default function TransferForm() {
       </div>
 
       <button
-        className="mt-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold py-3 rounded-2xl shadow-lg hover:from-blue-600 hover:to-indigo-600 transition-all cursor-pointer"
+        className={`mt-2 text-white font-semibold py-3 rounded-2xl shadow-lg transition-all cursor-pointer ${getButtonStyle()}`}
         onClick={handleTransfer}
+        disabled={isLoading}
       >
-        Proceed
+        {isLoading ? (
+          <span className="flex items-center justify-center gap-2">
+            <svg
+              className="animate-spin h-5 w-5 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              ></path>
+            </svg>
+            Processing...
+          </span>
+        ) : (
+          getButtonText()
+        )}
       </button>
     </div>
   );

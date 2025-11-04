@@ -1,11 +1,31 @@
+"use client";
+
 import { Fragment } from "react";
+import Image from "next/image";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
 const NETWORKS = [
-  { id: 11155111, name: "Ethereum Sepolia" },
-  { id: 84532, name: "Base Sepolia" },
-  { id: 421614, name: "Arbitrum Sepolia" },
+  {
+    id: 11155111,
+    name: "Ethereum Sepolia",
+    icon: "/ethereum.png",
+  },
+  {
+    id: 84532,
+    name: "Base Sepolia",
+    icon: "/networks/base.png",
+  },
+  {
+    id: 421614,
+    name: "Arbitrum Sepolia",
+    icon: "/networks/arbitrum.png",
+  },
+  {
+    id: 11155420,
+    name: "Optimism Sepolia",
+    icon: "/networks/optimism.png",
+  },
 ];
 
 interface ToNetworkDropdownProps {
@@ -17,10 +37,7 @@ export default function ToNetworksDropdown({
   selectedNetwork,
   onChange,
 }: ToNetworkDropdownProps) {
-  const toggleNetwork = (id: number) => {
-    const updated = selectedNetwork === id ? null : id;
-    onChange(updated);
-  };
+  const selected = NETWORKS.find((n) => n.id === selectedNetwork);
 
   return (
     <div className="w-full">
@@ -28,10 +45,21 @@ export default function ToNetworksDropdown({
         {({ open }) => (
           <div className="relative mt-1">
             <Listbox.Button className="relative w-full cursor-pointer rounded-2xl bg-white/70 py-3 pl-4 pr-10 text-left border border-gray-300 hover:border-blue-400 focus:ring-2 focus:ring-blue-400 transition-all shadow-sm hover:shadow-md">
-              <span className="block truncate text-gray-700 font-medium">
-                {selectedNetwork
-                  ? NETWORKS.find((n) => n.id === selectedNetwork)?.name
-                  : "Select a network"}
+              <span className="flex items-center gap-2 truncate text-gray-700 font-medium">
+                {selected ? (
+                  <>
+                    <Image
+                      src={selected.icon}
+                      alt={selected.name}
+                      width={20}
+                      height={20}
+                      className="rounded-full"
+                    />
+                    {selected.name}
+                  </>
+                ) : (
+                  "Select a network"
+                )}
               </span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
                 <ChevronUpDownIcon className="h-5 w-5 text-gray-500" />
@@ -59,10 +87,17 @@ export default function ToNetworksDropdown({
                             selectedNetwork === network.id ? null : network.id
                           )
                         }
-                        className={`relative cursor-pointer select-none py-2 pl-10 pr-4 ${
+                        className={`relative flex items-center gap-2 cursor-pointer select-none py-2 pl-10 pr-4 ${
                           active ? "bg-blue-100 text-blue-900" : "text-gray-900"
                         }`}
                       >
+                        <Image
+                          src={network.icon}
+                          alt={network.name}
+                          width={20}
+                          height={20}
+                          className="rounded-full"
+                        />
                         <span
                           className={`block truncate ${
                             selectedNetwork === network.id
@@ -72,6 +107,7 @@ export default function ToNetworksDropdown({
                         >
                           {network.name}
                         </span>
+
                         {selectedNetwork === network.id && (
                           <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-blue-600">
                             <CheckIcon className="h-5 w-5" />

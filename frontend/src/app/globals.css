@@ -20,7 +20,7 @@ body {
   min-height: 100vh;
   font-family: Arial, Helvetica, sans-serif;
   color: var(--foreground);
-  background: linear-gradient(120deg, #f0f9ff, #fefefe, #f3e8ff);
+  background: linear-gradient(120deg, #d4fcf0, #ffe9d6, #fff5ec);
   background-size: 200% 200%;
   animation: softGradientMove 15s ease infinite;
 }
