@@ -16,11 +16,13 @@ const config = getDefaultConfig({
 
 const queryClient = new QueryClient();
 
-export function RainbowProvider({ children }: { children: React.ReactNode }) {
+export function RainbowProviders({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider modalSize="compact">{children}</RainbowKitProvider>
+        <RainbowKitProvider modalSize="compact" showRecentTransactions={true}>
+          {children}
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
